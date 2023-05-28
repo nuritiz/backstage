@@ -52,7 +52,6 @@ const getExtensionContext = (
     }
 
     // If there is a single route ref, return it.
-    // todo: get routeRef of rendered gathered mount point(?)
     let routeRef: RouteRef | undefined;
     let plugin: BackstagePlugin | undefined;
     if (routeObject.routeRefs.size === 1) {
@@ -73,6 +72,7 @@ const getExtensionContext = (
       extension: 'App',
       pluginId: plugin?.getId() || 'root',
       ...(routeRef ? { routeRef: (routeRef as { id?: string }).id } : {}),
+      _element: routeObject.element as string,
       params,
     };
   } catch {

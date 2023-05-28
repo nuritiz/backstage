@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import React, { lazy, Suspense } from 'react';
-import { AnalyticsContext } from '../analytics';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { AnalyticsContext, useAnalytics } from '../analytics';
 import { useApp } from '../app';
 import { RouteRef, useRouteRef } from '../routing';
 import { attachComponentData } from './componentData';
@@ -82,6 +82,8 @@ export function createRoutableExtension<
         component().then(
           InnerComponent => {
             const RoutableExtensionWrapper: any = (props: any) => {
+              const analytics = useAnalytics();
+
               // Validate that the routing is wired up correctly in the App.tsx
               try {
                 useRouteRef(mountPoint);
@@ -101,6 +103,15 @@ export function createRoutableExtension<
                 }
                 throw error;
               }
+
+              // This event, never exposed to end-users of the analytics API,
+              // helps inform which extension metadata gets associated with a
+              // navigation event when the route navigated to is a gathered
+              // mountpoint.
+              useEffect(() => {
+                analytics.captureEvent('_routable-extension-rendered', '');
+              }, [analytics]);
+
               return <InnerComponent {...props} />;
             };
 
